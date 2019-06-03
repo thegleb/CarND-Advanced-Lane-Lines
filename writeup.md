@@ -157,9 +157,9 @@ Here is an example picture demonstrating debugger output of the sliding window s
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-First we have to calculate the lane line fits in "real world" scale. I used a couple assumptions to create a pixel-to-meter conversion factor in both the X and Y directions. I used the average width of a lane (12 feet) and dashed lane line indicator dimensions to estimate a real-world distance in both dimensions.
+First we have to calculate the lane line fits in "real world" scale. I used a couple assumptions to create a pixel-to-meter conversion factor in both the X and Y directions. I used the average width of a lane (12 feet) and dashed lane line indicator dimensions (10 feet for the long dashed line, 30 feet between dashed lines) to estimate a real-world distance in both dimensions.
 
-For curvature I average the radius of curvature for the 2 lines representing the sides of the lane since they're not "parallel" or have the same curvature down to the individual pixel.
+For curvature I average the radius of curvature for the 2 lines representing the sides of the lane since they do not have the same curvature down to the individual pixel.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
