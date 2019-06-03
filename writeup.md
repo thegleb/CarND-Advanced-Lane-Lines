@@ -19,8 +19,8 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image0]: ./writeup_images/original_checkerboard.jpg "Original checkerboard pattern"
-[image1]: ./writeup_images/undistorted_checkerboard.jpg "Undistorted checkerboard"
+[image0]: ./writeup_images/original_checkerboard.png "Original checkerboard pattern"
+[image1]: ./writeup_images/undistorted_checkerboard.png "Undistorted checkerboard"
 [image2]: ./writeup_images/original.jpg "Original road image"
 [image3]: ./writeup_images/undistorted.png "Undistorted road image"
 [image4]: ./writeup_images/white_thresholds.png "Thresholds for finding white lane markers"
