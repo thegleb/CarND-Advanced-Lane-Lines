@@ -66,7 +66,10 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 
 `cv2.undistort(img, mtx, dist, None)` makes it easy to get a distortion-corrected image. `mtx` and `dist` values come from the `cv2.calibrateCamera()` call described earlier. Here is a road image before and after distortion correction:
 
+Original road image:
 ![Original road][image2]
+
+Undistorted road image:
 ![Undistorted road][image3]
 
 
@@ -82,17 +85,24 @@ I broke down image processing into several steps:
 
 This is done in the `find_edges(img)` method in `P2.ipynb`, with some of the sub-items such as the sobel filtering done separately in the `sobel(...)` method.
 
+Filtering on color to find the white lane indicators:
 ![Thresholds for finding white lane markers][image4]
+
+Filtering on color to find the yellow lane indicators:
 ![Thresholds for finding yellow lane markers/lines][image5]
+
+Sobel filters on magnitude:
 ![Magnitude gradient via Sobel operator][image6]
+
+Sobel filters on direction:
 ![Directional gradient via Sobel operator][image7]
+
+Combined filtered image - yellow OR white OR (magnitude AND gradient)
 ![All together: yellow OR white OR (magnitude AND gradient)][image8]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
-
-The code for my perspective transform is done globally (not super clean, I know), near the bottom of the `P2.ipynb` notebook in the last code cell. I created a trapezoid that sort of follows parallel lines to match perspective in the main video:
+The code for my perspective transform is done globally (not super clean, I know), near the bottom of the `P2.ipynb` notebook in code box #16 near the bottom of the notebook. I created a trapezoid that sort of follows parallel lines to match perspective in the main video:
 
 ```python
 
@@ -126,14 +136,17 @@ This resulted in the following source and destination points:
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
-![Filter image before warping][image9]
-![Filter image transformed into a top-down perspective][image10]
+Undistorted straight line road image before warping
+![Image before warping][image9]
+
+The above image after warping to a top-down perspective
+![Image transformed into a top-down perspective][image10]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
 I took a pretty naive lane-line pixel finding approach in the `find_and_update_lane_lines()` method. Essentially on the first run I do a sliding window search (minimum threshold of 100 pixels to move the next window over), and on subsequent runs I iterate over the previously found line and find pixels within a certain margin of the existing line.
 
-In the rare case that we were not able to find something like a polynomial, we reset the search back to a sliding window search. In my experience we don't really trigger the fallback (we are able to find the lane lines just fine after the first frame) so the test video did not require additional tuning here.
+In the rare case that we were not able to any points we can turn into a polynomial, we reset the search back to a sliding window search. In my experience we don't really trigger the fallback (we are able to find the lane lines just fine after the first frame) so the test video did not require additional tuning here.
 
 Here is an example picture demonstrating debugger output of the sliding window search (I did not implement debug output for the second type of search):
 
@@ -141,7 +154,7 @@ Here is an example picture demonstrating debugger output of the sliding window s
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-First we have to calculate the lane line fits in "real world" scale. I used a couple assumptions to create a pixel-to-meter conversoin factor in both the X and Y directions. I used the average width of a lane (12 feet) and dashed lane line indicator dimensions to estimate a real-world distance in both dimensions.
+First we have to calculate the lane line fits in "real world" scale. I used a couple assumptions to create a pixel-to-meter conversion factor in both the X and Y directions. I used the average width of a lane (12 feet) and dashed lane line indicator dimensions to estimate a real-world distance in both dimensions.
 
 For curvature I average the radius of curvature for the 2 lines representing the sides of the lane since they're not "parallel" or have the same curvature down to the individual pixel.
 
@@ -149,7 +162,9 @@ For curvature I average the radius of curvature for the 2 lines representing the
 
 I wrote a method called `draw_lane_on_image()` which takes a blank image and draws the lane line on it in the form of polylines as well as a polynomial.
 
-Since this is unwarped immediately after, to also plot the curvature and car's offset on the final image we have to do this after the unwarp step. This is done in `annotate_image()`; this method is also where we calculate the final curvature and offset values because it is one place in the code where we have both lines together, so it is a decent place to summarize some values based on both.
+To plot the curvature and car's offset on the final image we have to do this after we unwarp the newly generated lane image and overlay it on the original image.
+
+This is done in `annotate_image()`; `annotate_image()` is also where we calculate the final curvature and offset values because it is one place in the code where we process both lines together.
 
 ![Final output][image12]
 
@@ -175,3 +190,4 @@ The other limitations of my current pipeline, in no particular order:
 - My definition of "line not found" is very simplistic - a line is considered as not found if we couldn't fit a polynomial to it. The pipeline doesn't check curvature or approximate where the left or right lane line is "supposed" to be. This would be one point of improvement.
 - The warp transform is very dependent on one angle of the camera. For example, the challenge video looks to be filmed from a slightly different perspective, so we have to re-calculate the transform for that specific case. A more automated case that can calibrate itself from a straight-line view could be helpful.
 - I am not super happy with my sobel filter skills, as that part of the filtering gets pretty useless in parts of the (easier) challenge video. The parts of that video where the car is in the tunnel basically become pretty useless with the filter setup I have currently. Color filters on an otherwise unmodified image have not been super useful in my testing, so further work would be needed to get that part of the challenge to work.
+- Code can be organized a bit better; I'd probably introduce a new Lane class that would contain some additional logic about combining the left and right lane boundaries.
